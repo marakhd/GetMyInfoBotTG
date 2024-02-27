@@ -1,6 +1,7 @@
 #import aiogram
-from aiogram import types, Router
+from aiogram import types, Router, F
 from aiogram.filters import CommandStart, Command
+import config as cfg
 
 router = Router()
 
@@ -18,7 +19,7 @@ async def start(message: types.Message):
                          f'\nЮзернейм: @{message.from_user.username}'
                          f'\nСтатус TG Premium: {prem}')
 #Хендлер get
-@router.message(Command('get'))
+@router.message((Command('get') or Command('id')))
 async def get(message: types.Message):
     prem = message.from_user.is_premium
     if (prem == True):
@@ -46,11 +47,19 @@ async def help_user(message: types.Message):
     await message.answer(f'Этот бот позволяет получить User ID. '
                          f'\nНапишите боту команду /get чтобы получить инфо о своём профиле.'
                          f'\n\nЕсли вы хотите узнать ID другого человека, то просто перешлите боту сообщение которое написал этот человек. '
+                         f'\n\nВы можете узнать ID стикера, просто отправьте стикер боту'
                          f'\n\nUser ID - это ваш уникальный идентификатор в Telegram который вы можете использовать в своем боте'
-                         f'\n\n<a href="https://core.telegram.org/bots/api#user">Подробнее</a>')
+                         f'\n\n<a href="https://core.telegram.org/bots/api#user">Подробнее</a>', disable_web_page_preview = True)
 
-#Хендлер на все
-@router.message()
+#Хендлер для команды why
+@router.message(Command("why"))
+async def start(message: types.Message):
+    await message.answer(f'Мы OpenSource проект телеграм бота!'
+                         f'\nЭтот бот помогает вам создать своего бота. Подробнее /help'
+                         f'\n\nВы можете наблюдать за разработкой на нашем <a href="{cfg.GITHUB}">GitHub</a>', disable_web_page_preview = False)
+
+#Хендлер на текст
+@router.message(F.text)
 async def all_msg(message: types.Message):
     if (message.from_user.is_premium == True):
         prem = 'Подключена'
@@ -89,3 +98,16 @@ async def all_msg(message: types.Message):
                             f'\nТвой ID: <code>{message.from_user.id}</code> '
                             f'\nЮзернейм: @{message.from_user.username}'
                             f'\nСтатус TG Premium: {prem}')
+
+#Хендлер на стикеры
+@router.message(F.sticker)
+async def sticker(message: types.Message):
+    await message.reply(f'ID стикера:'
+                        f'\n<code>{message.sticker.file_id}</code>'
+                        f'\n\nЧтобы узнать информацию о себе напишите /get')
+
+#Хендлер на все
+@router.message()
+async def error(message: types.Message):
+    await message.answer(f'Ошибка')
+    await message.answer(f'Бот принимает только текст и стикеры')

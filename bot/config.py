@@ -1,2 +1,3 @@
 #Суда токен из @BotFather (https://t.me/BotFather)
-TOKEN = 'your_token'
+TOKEN = 'YOURTOKEN'
+GITHUB = 'https://github.com/marakhd/GetMyInfoBotTG'
